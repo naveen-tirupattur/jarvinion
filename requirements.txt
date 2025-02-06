@@ -1,0 +1,16 @@
+fastapi
+websockets
+pydantic
+uvicorn
+jinja2
+faiss-cpu
+bs4
+unstructured
+libmagic
+tiktoken
+python-dotenv
+chromadb
+transformers
+google-auth
+google-auth-httplib2
+

@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "Jarvinion - Your Email Assistant",
+  "version": "1.0",
+  "description": "A smart-yet-goofy email assistant for Gmail.",
+  "permissions": [
+    "identity",
+    "storage",
+    "scripting",
+    "activeTab",
+    "sidePanel",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*"
+  ],
+  "background": {
+    "service_worker": "src/main/js/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "src/main/js/content.js",
+        "src/main/js/readability.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/icons-100.png",
+        "images/icons-200.png"
+      ],
+      "matches": [
+        "https://mail.google.com/*"
+      ]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "100": "images/icons-100.png",
+      "200": "images/icons-200.png"
+    }
+  },
+  "icons": {
+    "100": "images/icons-100.png",
+    "200": "images/icons-200.png"
+  },
+  "oauth2": {
+    "client_id": "942018537282-r72ige34jp4e3u19mq06jnk0bup65u5r.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.readonly",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  }
+}
