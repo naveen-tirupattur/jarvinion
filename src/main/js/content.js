@@ -18,7 +18,6 @@ window.onload = function () {
     }
 
     // Function to get selected message ids
-
     function getSelectedEmailMessageIds() {
         const selectedEmails = document.querySelectorAll('tr.zA.yO.x7');
         const gmailApiIds = [];
@@ -28,14 +27,12 @@ window.onload = function () {
             const threadIdElement = emailRow.querySelector('[data-legacy-thread-id]');
             if (threadIdElement) {
                 const threadId = threadIdElement.getAttribute('data-legacy-thread-id');
-
                 // if thread id exists, extract messageId
                 if (threadId) {
                     const messageId = threadId.split(':').pop();
                     gmailApiIds.push(messageId)
                 }
             }
-
         });
         return gmailApiIds;
     }
@@ -50,7 +47,7 @@ window.onload = function () {
         console.log("Sending message ids to background: ", messageIds);
         chrome.runtime.sendMessage({ action: "fetchEmails", messageIds: messageIds }, function (response) {
             if (response && response.status === "fetching selected emails") {
-                console.log("Fetching and processing selected emails...");
+                console.log(response.status);
             }
         });
     }
@@ -60,7 +57,7 @@ window.onload = function () {
         if (selectedMessages.length === 0) {
             chrome.runtime.sendMessage({ action: 'clearSidePanel' }, function (response) {
                 if (response && response.status == "side panel cleared") {
-                    console.log("Side panel cleared.");
+                    console.log(response.status);
                 }
             });
         } else {
@@ -88,7 +85,7 @@ window.onload = function () {
         handleSelectionChanges();
         chrome.runtime.sendMessage({ action: 'openSidePanel' }, function (response) {
             if (response && response.status == "side panel opened") {
-                console.log("Side panel opened.")
+                console.log(response.status);
             }
         });
         // const messageId = document.querySelector('[data-message-id]').getAttribute('data-legacy-message-id')

@@ -1,92 +1,61 @@
-// const signInButton = document.getElementById("signInButton");
-// const signOutButton = document.getElementById("signOutButton");
-const statusMessage = document.getElementById("statusMessage")
-const summarizeButton = document.getElementById("summarizeButton")
+const sidePanelContent = document.getElementById('emailList');
 
-// Helper function to update UI based on auth state
-function updateUI(isAuthenticated) {
-    if (isAuthenticated) {
-        statusMessage.textContent = 'Authenticated!';
-        // signInButton.style.display = "none";
-        // signOutButton.style.display = "block";
-    } else {
-        statusMessage.textContent = 'Not Authenticated!';
-        // signInButton.style.display = "block";
-        // signOutButton.style.display = "none";
-    }
-}
-
-function updateEmailList(emails) {
-    const emailList = document.getElementById('emailList');
-    emailList.innerHTML = '';
+function updateSidePanelContentWithEmails(emails) {
+    sidePanelContent.innerHTML = '';
     emails.forEach(email => {
         const listItem = document.createElement('li');
+        listItem.classList.add('email-content'); // Add the class here
+
         const parser = new DOMParser();
+        if (!email.body) return;
         const doc = parser.parseFromString(email.body, 'text/html');
-        const article = new Readability(doc).parse();
-        console.log(article.textContent);
-        listItem.textContent = article.textContent;
-        emailList.appendChild(listItem);
+        const emailBody = new Readability(doc).parse();
+        if (!emailBody.textContent) return;
+        console.log(emailBody.textContent);
+
+        // Create a span element for the loading indicator
+        const loadingSpan = document.createElement('span');
+        loadingSpan.textContent = 'Summarizing...';
+        loadingSpan.classList.add('loading-message'); // Add the class for loading message
+        listItem.appendChild(loadingSpan);
+        sidePanelContent.appendChild(listItem);
+
+        fetch('http://0.0.0.0:11434/api/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: "llama3.2",
+                system: "You are a smart assistant who is a combination of Jarvis from Ironman and Kevin from Minions.\
+                Summarize this email as Kevin and suggest follow up items as Jarvis that might be relevant to me as the recipient.\
+                Keep it concise and to the point. Be sure to extract links and other relevant info. Be funny but no yapping!",
+                prompt: emailBody.textContent,
+                stream: false
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                loadingSpan.remove();
+                const html = marked.parse(data.response);
+                listItem.innerHTML = html;
+            })
+            .catch(error => {
+                loadingSpan.remove();
+                listItem.innerHTML = 'Error summarizing email. Try again later!';
+                console.error('Error:', error);
+            });
+        sidePanelContent.appendChild(listItem);
     });
     return Promise.resolve();
 }
 
-async function checkAuthState() {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ action: "getAuthState" }, function (response) {
-            if (response && response.isAuthenticated) {
-                resolve(true);
-            } else {
-                resolve(false)
-            }
-        });
-    })
-}
-// Check authentication status on popup load
-checkAuthState().then((isAuthenticated) => {
-    updateUI(isAuthenticated)
-})
-
-
-// signInButton.addEventListener("click", () => {
-//     chrome.runtime.sendMessage({ action: "authenticate" }, function (response) {
-//         if (response && response.isAuthenticated) {
-//             checkAuthState().then((isAuthenticated) => {
-//                 updateUI(isAuthenticated)
-//             })
-//         } else {
-//             statusMessage.textContent = 'Authentication failed!'
-//         }
-//     });
-// });
-
-// signOutButton.addEventListener("click", () => {
-//     chrome.runtime.sendMessage({ action: "signout" }, function (response) {
-//         if (response && response.status == "signedOut") {
-//             checkAuthState().then((isAuthenticated) => {
-//                 updateUI(isAuthenticated)
-//             })
-//         } else {
-//             statusMessage.textContent = 'Could not sign out'
-//         }
-//     });
-// });
-
-summarizeButton.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "summarize" }, function (response) {
-        if (response && response.status == "summaryGenerated") {
-            updateUI(response.summary)
-        } else {
-            statusMessage.textContent = 'Could not generate summary'
-        }
-    });
-});
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     switch (request.action) {
-        case "emailFetched":
-            console.log("Emails fetched: ", request.emails);
-            updateEmailList(request.emails).then(() => {
+        case "emailsFetched":
+            console.log("Email fetched: ", request.emails);
+            updateSidePanelContentWithEmails(request.emails).then(() => {
                 sendResponse({ status: "emails updated" });
             });
             break;

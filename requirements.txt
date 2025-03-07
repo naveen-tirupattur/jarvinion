@@ -1,5 +1,7 @@
 fastapi
-websockets
+black
+isort
+httpx
 pydantic
 uvicorn
 jinja2
@@ -10,7 +12,3 @@ libmagic
 tiktoken
 python-dotenv
 chromadb
-transformers
-google-auth
-google-auth-httplib2
-

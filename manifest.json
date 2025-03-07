@@ -23,8 +23,7 @@
         "https://mail.google.com/*"
       ],
       "js": [
-        "src/main/js/content.js",
-        "src/main/js/readability.js"
+        "src/main/js/content.js"
       ]
     }
   ],
@@ -32,7 +31,8 @@
     {
       "resources": [
         "images/icons-100.png",
-        "images/icons-200.png"
+        "images/icons-200.png",
+        "https://cdn.jsdelivr.net/npm/marked/marked.min.js"
       ],
       "matches": [
         "https://mail.google.com/*"

@@ -1,5 +1,5 @@
 let isAuthenticated = false;
-
+let messageIds = [];
 // Function to initiate authentication flow
 async function authenticate() {
   return new Promise((resolve, reject) => {
@@ -24,52 +24,6 @@ async function authenticate() {
   });
 }
 
-// Function to sign out
-async function signOut() {
-  return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ 'interactive': false }, function (token) {
-      if (token) {
-        chrome.identity.removeCachedAuthToken({ token: token }, function () {
-          console.log('Token removed. Signed out.');
-          isAuthenticated = false
-          chrome.storage.local.remove("isAuthenticated", () => {
-            // Resolve only after remove is done
-            resolve({ isAuthenticated: false, status: "signedOut" });
-          });
-        });
-      } else {
-        console.log('No token found. Already signed out.');
-        isAuthenticated = false
-        chrome.storage.local.remove("token");
-        chrome.storage.local.remove("isAuthenticated", () => {
-          // Resolve only after remove is done
-          resolve({ isAuthenticated: false, status: "signedOut" });
-        });
-      }
-    })
-  });
-}
-
-// Function to periodically expire the token
-function tokenExpirationCheck() {
-  setInterval(async () => {
-    console.log("Checking token state.")
-    if (isAuthenticated) {
-      chrome.identity.getAuthToken({ 'interactive': false }, function (token) {
-        if (token) {
-          console.log("Token is still valid.");
-        } else {
-          console.log("Token has expired, user needs to sign in.");
-          isAuthenticated = false
-          chrome.storage.local.remove('isAuthenticated');
-        }
-
-      })
-    } else {
-      console.log("Not authenticated.")
-    }
-  }, 600000) // Check every 10 minutes
-}
 
 // Listener for extension startup
 chrome.runtime.onStartup.addListener(async () => {
@@ -79,7 +33,6 @@ chrome.runtime.onStartup.addListener(async () => {
     isAuthenticated = true
   }
   console.log('Authenticated from startup:', isAuthenticated);
-  tokenExpirationCheck()
 });
 
 // Listener for when the extension is installed
@@ -90,24 +43,13 @@ chrome.runtime.onInstalled.addListener(async () => {
     isAuthenticated = true
   }
   console.log('Authenticated from install:', isAuthenticated);
-  tokenExpirationCheck()
 });
-
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action == "fetchEmails") {
+    messageIds = request.messageIds;
     fetchEmailsAndThreads(request.messageIds)
     sendResponse({ status: "fetching selected emails" });
-    // } else if (request.action == "authenticate") {
-    //   authenticate().then((response) => {
-    //     sendResponse(response);
-    //   });
-    //   return true;
-    // } else if (request.action == "signout") {
-    //   signOut().then((response) => {
-    //     sendResponse(response);
-    //   });
-    //   return true;
   } else if (request.action == "getAuthState") {
     sendResponse({ isAuthenticated: isAuthenticated })
   } else if (request.action == "openSidePanel") {
@@ -121,7 +63,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 // Function to open the side panel
 async function openSidePanel(sender) {
   try {
-    // This will open a tab-specific side panel only on the current tab.
     chrome.sidePanel.setOptions({
       tabId: sender.tab.id,
       path: "src/main/ui/sidepanel.html",
@@ -133,13 +74,14 @@ async function openSidePanel(sender) {
   }
 }
 
+
 async function fetchEmailsAndThreads(messageIds) {
   if (!messageIds || messageIds.length === 0) {
     console.log("No emails selected.");
     return;
   }
 
-  const fetchedEmails = []; // Use a proper array
+  const fetchedEmails = [];
   const fetchPromises = messageIds.map(async (messageId) => {
     try {
       console.log("processing message id: ", messageId);
@@ -170,9 +112,9 @@ async function fetchEmailsAndThreads(messageIds) {
 
   console.log('Sending emails to side panel: ', fetchedEmails);
 
-  chrome.runtime.sendMessage({ action: "emailFetched", emails: fetchedEmails }, function (response) {
+  chrome.runtime.sendMessage({ action: "emailsFetched", emails: fetchedEmails }, function (response) {
     if (response && response.status == "emails updated") {
-      console.log("emails updated");
+      console.log(response.status);
     }
   });
 }

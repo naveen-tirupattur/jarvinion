@@ -1,44 +1,19 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            cursor: pointer;
-            background-color: #3C79F8;
-            color: white;
-            border: none;
-            display: inline-block;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #3C79F8;
-        }
-
-        #statusMessage {
-            margin-top: 15px;
-            font-weight: bold;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>Jarvinion</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your external CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <!-- <button id="signInButton">Sign In</button>
-    <button id="signOutButton" style="display: none;">Sign Out</button> -->
-    <button id="summarizeButton">Summarize selected emails</button>
-    <p id="statusMessage"></p>
     <div id="emailList"></div>
-
     <script src="../js/sidepanel.js"></script>
     <script src="../js/readability.js"></script>
+    <script src="../js/marked.min.js"></script>
 </body>
 
 </html>
