@@ -71,7 +71,6 @@ function updateSidePanelContentWithEmails(emails) {
                         if (line.trim()) {
                             try {
                                 const json = JSON.parse(line);
-                                console.log('json:', json);
                                 if (json.response) {
                                     contentContainer.innerHTML += json.response;
                                 }
