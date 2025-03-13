@@ -4,20 +4,25 @@ function updateSidePanelContentWithEmails(emails) {
     sidePanelContent.innerHTML = '';
     emails.forEach(email => {
         const listItem = document.createElement('li');
-        listItem.classList.add('email-content'); // Add the class here
+        listItem.classList.add('email-content');
 
         const parser = new DOMParser();
         if (!email.body) return;
         const doc = parser.parseFromString(email.body, 'text/html');
         const emailBody = new Readability(doc).parse();
         if (!emailBody.textContent) return;
-        console.log(emailBody.textContent);
 
-        // Create a span element for the loading indicator
+        // Create a container for the streaming content
+        const contentContainer = document.createElement('div');
+        contentContainer.classList.add('stream-content');
+
+        // Create loading indicator
         const loadingSpan = document.createElement('span');
         loadingSpan.textContent = 'Summarizing...';
-        loadingSpan.classList.add('loading-message'); // Add the class for loading message
+        loadingSpan.classList.add('loading-message');
+
         listItem.appendChild(loadingSpan);
+        listItem.appendChild(contentContainer);
         sidePanelContent.appendChild(listItem);
 
         fetch('http://0.0.0.0:11434/api/generate', {
@@ -28,25 +33,65 @@ function updateSidePanelContentWithEmails(emails) {
             body: JSON.stringify({
                 model: "llama3.2",
                 system: "You are a smart assistant who is a combination of Jarvis from Ironman and Kevin from Minions.\
-                Summarize this email as Kevin and suggest follow up items as Jarvis that might be relevant to me as the recipient.\
-                Keep it concise and to the point. Be sure to extract links and other relevant info. Be funny but no yapping!",
+-               Summarize this email in as Kevin and suggest follow up items as Jarvis that might be relevant to me as the recipient.\
+                Keep it concise and to the point. Include emojis and relevant links. Be funny but no yapping!",
                 prompt: emailBody.textContent,
-                stream: false
+                stream: true
             })
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                // Remove loading indicator once we start receiving data
                 loadingSpan.remove();
-                const html = marked.parse(data.response);
-                listItem.innerHTML = html;
+
+                function processStream({ done, value }) {
+                    if (done) {
+                        if (buffer) {
+                            const html = marked.parse(buffer);
+                            contentContainer.innerHTML += buffer;
+                        }
+                        return;
+                    }
+
+                    // Decode the received chunk and add it to our buffer
+                    buffer += decoder.decode(value, { stream: true });
+                    let sentence = '';
+
+                    // Process complete lines
+                    while (buffer.includes('\n')) {
+                        const lineEnd = buffer.indexOf('\n');
+                        const line = buffer.slice(0, lineEnd);
+                        buffer = buffer.slice(lineEnd + 1);
+
+                        if (line.trim()) {
+                            try {
+                                const json = JSON.parse(line);
+                                console.log('json:', json);
+                                if (json.response) {
+                                    contentContainer.innerHTML += json.response;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing JSON:', e);
+                            }
+                        }
+                    }
+
+                    // Continue reading
+                    return reader.read().then(processStream);
+                }
+
+                return reader.read().then(processStream);
             })
             .catch(error => {
                 loadingSpan.remove();
-                listItem.innerHTML = 'Error summarizing email. Try again later!';
+                listItem.innerHTML = `<div class="error-message">Error summarizing email: ${error.message}</div>`;
                 console.error('Error:', error);
             });
-        sidePanelContent.appendChild(listItem);
     });
     return Promise.resolve();
 }

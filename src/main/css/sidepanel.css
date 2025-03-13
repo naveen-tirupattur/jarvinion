@@ -1,0 +1,19 @@
+.stream-content {
+    padding: 10px;
+    white-space: pre-wrap;
+}
+
+.loading-message {
+    color: #666;
+    font-style: italic;
+}
+
+.error-message {
+    color: #ff4444;
+    padding: 10px;
+}
+
+.email-content {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
