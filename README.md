@@ -122,8 +122,9 @@ The extension requires the following permissions:
 
 ## Known Issues
 
-*   Gmail's DOM structure can change, potentially breaking the content script. We will try to keep up with any issues that might arise.
+*  Gmail's DOM structure can change, potentially breaking the content script. We will try to keep up with any issues that might arise.
 *  Rate limiting with the Gmail API can cause the app to stop working.
+*  Lack of support for large emails (context window is 2048 tokens)
 
 ## Contributing
 
