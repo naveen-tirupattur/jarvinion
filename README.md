@@ -136,4 +136,3 @@ This project is licensed under the GNU General Public License v3.0.
 ## Credits
 
 *   This extension was inspired by the desire to make email management more efficient and enjoyable.
-* The minion faces are AI generated, so any issues with them are not the responsibility of the authors.
