@@ -55,6 +55,9 @@ Before using Jarvinion, you need to set up a Google Cloud project and configure 
 3.  **Configure OAuth 2.0 Credentials:**
     *   Navigate to "APIs & Services" > "Credentials".
     *   Click "+ Create Credentials" and select "OAuth client ID".
+
+      ![image](https://github.com/user-attachments/assets/12f55ad8-546a-44bc-8578-d81261bd3719)
+
     *   If you haven't configured the OAuth consent screen, you'll be prompted to do so:
         *   Click "Configure consent screen".
         *   Select "External" as the user type (unless you're only using this for users within your Google Workspace organization).
@@ -67,6 +70,9 @@ Before using Jarvinion, you need to set up a Google Cloud project and configure 
         *   Select "Chrome Application" as the application type.
         *   Enter a name for your OAuth client.
         *   Click "Create".
+          
+          ![image](https://github.com/user-attachments/assets/ffcd9aef-f540-42a6-bef8-996de21cca3a)
+
     *   Note down the **Client ID**. You'll need this in the next steps.
 
 4.  **Update `manifest.json`:**
