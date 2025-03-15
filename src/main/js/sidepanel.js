@@ -52,7 +52,6 @@ function updateSidePanelContentWithEmails(emails) {
                 function processStream({ done, value }) {
                     if (done) {
                         if (buffer) {
-                            const html = marked.parse(buffer);
                             contentContainer.innerHTML += buffer;
                         }
                         return;
