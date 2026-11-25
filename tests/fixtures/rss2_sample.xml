@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Test Blog</title>
+    <link>https://example.com</link>
+    <description>A test RSS 2.0 feed</description>
+    <item>
+      <title>First Post</title>
+      <link>https://example.com/post/1</link>
+      <guid>https://example.com/post/1</guid>
+      <pubDate>Mon, 18 Nov 2026 12:00:00 +0000</pubDate>
+      <description>Summary of the first post.</description>
+      <author>alice@example.com</author>
+    </item>
+    <item>
+      <title>Second Post</title>
+      <link>https://example.com/post/2</link>
+      <guid>https://example.com/post/2</guid>
+      <pubDate>Tue, 19 Nov 2026 09:30:00 +0000</pubDate>
+      <description>Summary of the second post.</description>
+    </item>
+  </channel>
+</rss>

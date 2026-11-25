@@ -1,0 +1,27 @@
+feeds:
+  - url: https://example.com/feed.xml
+    labels: [ai, research]
+  - url: https://news.example.com/rss
+    labels: [tech, aggregator]
+
+topics:
+  - name: "Distributed Systems"
+    keywords: [consensus, replication]
+  - name: "LLMs"
+    keywords: [transformer, fine-tuning]
+
+schedule:
+  ingest: "0 */4 * * *"
+  digest: "0 6 * * *"
+
+learning:
+  candidate_min_mentions: 2
+  resurface_after_days: 14
+
+llm:
+  providers:
+    ollama:
+      base_url: http://localhost:11434
+  tasks:
+    triage: { provider: ollama, model: llama3.2 }
+    summarize: { provider: ollama, model: llama3.2 }

@@ -1,0 +1,30 @@
+feeds:
+  - url: https://hnrss.org/frontpage
+    labels: [tech, aggregator]
+  - url: https://feeds.arstechnica.com/arstechnica/index
+    labels: [tech, news]
+
+topics:
+  - name: "Distributed Systems"
+    keywords: [consensus, replication, sharding, "CAP theorem"]
+  - name: "LLMs"
+    keywords: [transformer, fine-tuning, RAG, inference, attention]
+
+schedule:
+  ingest: "0 */4 * * *"
+  digest: "0 6 * * *"
+
+learning:
+  candidate_min_mentions: 2
+  resurface_after_days: 14
+
+llm:
+  providers:
+    ollama:
+      base_url: http://localhost:11434
+
+  tasks:
+    triage:    { provider: ollama, model: llama3.2 }
+    summarize: { provider: ollama, model: llama3.2 }
+    explain:   { provider: ollama, model: llama3.2 }
+    coach:     { provider: ollama, model: llama3.2 }
